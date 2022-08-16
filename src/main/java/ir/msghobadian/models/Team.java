@@ -11,7 +11,6 @@ import java.util.List;
 @Builder
 public class Team {
     private List<Player> players;
-    private int currentRoundPoints = 0;
     private int roundsWon = 0;
     private int gamesWon = 0;
 
@@ -20,9 +19,5 @@ public class Team {
     }
     public void wonGame(){
         gamesWon++;
-    }
-
-    public void addPoint(){
-        currentRoundPoints++;
     }
 }
