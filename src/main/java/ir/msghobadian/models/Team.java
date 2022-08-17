@@ -14,10 +14,10 @@ public class Team {
     private int roundsWon = 0;
     private int gamesWon = 0;
 
-    public void wonRound(){
+    public void wonRound() {
         roundsWon++;
     }
-    public void wonGame(){
+    public void wonGame() {
         gamesWon++;
     }
 }

@@ -26,7 +26,7 @@ public class Player implements Serializable {
     private transient Socket socket;
 
     @SneakyThrows
-    public void connectToGame(){
+    public void connectToGame() {
         socket = createConnection();
         sendPlayerPropertiesToGame(this);
         keepConnection();
@@ -54,7 +54,7 @@ public class Player implements Serializable {
 
     private void sendCommandToGame() {
         Scanner scanner = new Scanner(System.in);
-        while(true){
+        while(true) {
             String command = scanner.nextLine();
             sendSignal(socket, command);
         }

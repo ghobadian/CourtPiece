@@ -24,17 +24,17 @@ public class Util {
 
     private static List<Card> generateCards() {
         List<Card> output = new ArrayList<>();
-        for(Type type : Type.values()){
-            for(int j=1;j <= 13;j++){
+        for(Type type : Type.values()) {
+            for(int j=1;j <= 13;j++) {
                 output.add(Card.builder().number(j).type(type).build());
             }
         }
         return output;
     }
 
-    public static List<Hand> generateHands(){
+    public static List<Hand> generateHands() {
         List<Hand> allFourHands = new ArrayList<>();
-        for(int playerNumber = 0 ; playerNumber < 4;playerNumber++){
+        for(int playerNumber = 0 ; playerNumber < 4;playerNumber++) {
             Hand hand = new Hand();
             IntStream.range(0,13).forEach(i -> {
                 int rand = RANDOM.nextInt(allCards.size());
@@ -73,7 +73,7 @@ public class Util {
             out.writeUTF(signal);
         } catch (IOException e) {
             e.printStackTrace();
-        } catch (NullPointerException e){
+        } catch (NullPointerException e) {
             System.err.println("socket is null");
         }
     }
@@ -87,7 +87,7 @@ public class Util {
             System.err.println("Game not sending any response");
             AtomicInteger timeout = new AtomicInteger(5000);
             Thread.sleep(timeout.getAndAdd(5000));
-        } catch (NullPointerException n){
+        } catch (NullPointerException n) {
             System.err.println("Socket is null");
         }
         return null;
@@ -97,7 +97,7 @@ public class Util {
         sendSignal(socket, RED + errorMessage + RESET);
     }
 
-    public static void sendPlayer(Socket socket, Player player){//todo generify it
+    public static void sendPlayer(Socket socket, Player player) {//todo generify it
         try{
             ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
             out.writeObject(player);
@@ -106,7 +106,7 @@ public class Util {
         }
     }
 
-    public static Player receivePlayer(Socket socket){
+    public static Player receivePlayer(Socket socket) {
         try{
             ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
             return (Player) in.readObject();

@@ -35,32 +35,43 @@ public class Game {
     private Type rule;
     private int roundNumber = 1;
 
-    public void start(){
-        loadFirstGame();
-        while(true){
+    public void start() {
+        loadFirstGame();//todo test more
+        while(gamesWonBelow7()) {
             playGameUntilATeamWins();
         }
+        broadCast(teamWonTotalGameMessage(findAllRoundsWinner()));
+    }
+
+    private boolean gamesWonBelow7() {
+        return teams.stream().filter(team -> team.getGamesWon() < 7).count() == 2;
     }
 
     private void playGameUntilATeamWins() {
-        while(roundsWonBelow7()){
+        while(roundsWonBelow7()) {
             showDetailsToAllPlayers();
             playRound();
         }
-        broadCast(teamWonGameMessage(findTotalWinner()));
+        broadCast(teamWonGameMessage(findAllRoundsWinner()));
         resetGame();
     }
 
     private void resetGame() {
         loadGame();
-
     }
 
     private String teamWonGameMessage(Team team) {
         List<Player> players = team.getPlayers();
         Player player1 = players.get(0);
         Player player2 = players.get(1);
-        return player1.getName() + " and " + player2.getName() + " won game.";
+        return player1.getName() + " and " + player2.getName() + " won this game.";
+    }
+
+    private String teamWonTotalGameMessage(Team team) {
+        List<Player> players = team.getPlayers();//todo duplicate
+        Player player1 = players.get(0);
+        Player player2 = players.get(1);
+        return player1.getName() + " and " + player2.getName() + " won the whole game.";
     }
 
     private void loadFirstGame() {
@@ -126,7 +137,7 @@ public class Game {
 
     private Type letRulerChooseRule(Socket socket) {
         int chosenOption = Integer.parseInt(Objects.requireNonNull(receiveSignal(socket)));
-        return switch (chosenOption){
+        return switch (chosenOption) {
             case 1 -> SPADE;
             case 2 -> HEART;
             case 3 -> CLUB;
@@ -163,17 +174,22 @@ public class Game {
     }
 
     @SneakyThrows
-    private Team findTotalWinner() {
-        return teams.stream().filter(team -> team.getRoundsWon() == 7).findFirst().orElseThrow(() -> new Exception("Nobody has one this round yet"));
+    private Team findAllRoundsWinner() {//todo add kut and hakem kuti
+        return teams.stream().filter(team -> team.getRoundsWon() == 7).findFirst().orElseThrow(() -> new Exception("Nobody has one this game yet"));
     }
 
-    private void startAllConnections() {//todo sort cards by type and number;
+    @SneakyThrows
+    private Team findAllGamesWinner() {//todo add kut and hakem kuti
+        return teams.stream().filter(team -> team.getGamesWon() == 7).findFirst().orElseThrow(() -> new Exception("Nobody has one the whole game yet"));
+    }
+
+    private void startAllConnections() {
         socketAndPlayer.keySet().forEach(this::keepConnectionToThePlayer);
     }
 
     @SneakyThrows
     private void playRound() {
-        while(currentRoundCards.size() < 4){
+        while(currentRoundCards.size() < 4) {
             Thread.sleep(500);
             /// TODO: 8/16/22 user executer
         }
@@ -291,7 +307,7 @@ public class Game {
 
     @SneakyThrows
     private void receiveCommandFromPlayer(Socket socket) {
-        while(true){
+        while(true) {
             String response = receiveSignal(socket);
             try {
                 checkRegex(response);/// TODO: 8/17/22 clean it
@@ -313,7 +329,7 @@ public class Game {
         try {
             int card = Integer.parseInt(cardIndex);
             if (card < 1 || 13 < card) throw new Exception();
-        } catch (Exception e){
+        } catch (Exception e) {
             return true;
         }
         return false;
@@ -421,7 +437,7 @@ public class Game {
             checkTurnOfPlayer(player);
             checkForbiddenCardType(card.getType(), player);
             checkTwoCardsFromSinglePlayer(player);
-        }catch (Exception e){
+        }catch (Exception e) {
             sendError(socket, e.getMessage());
             return true;
         }
@@ -496,7 +512,7 @@ public class Game {
     }
 
     private void sendMessageToPlayer(Socket socket) {
-        while(true){
+        while(true) {
             Scanner scanner = new Scanner(System.in);
             sendSignal(socket, scanner.nextLine());
         }
