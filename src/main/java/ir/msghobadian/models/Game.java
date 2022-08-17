@@ -174,24 +174,16 @@ public class Game {
     @SneakyThrows
     private void playRound() {
         while(currentRoundCards.size() < 4){
-            Thread.sleep(1000);/// TODO: 8/16/22 user executer
+            Thread.sleep(500);
+            /// TODO: 8/16/22 user executer
         }
         Player winner = findWinner();
         Team winnerTeam = findTeamOfPlayer(winner);
-        if(isWinnerTeamChange(winnerTeam))
-            changeRuler();
         broadCast(playerWonRoundMessage(winner));
         winnerTeam.wonRound();
         playedRounds.add(Round.builder().winner(winner).playerAndCard(currentRoundCards).build());
         currentRoundCards.clear();
         roundNumber++;
-    }
-
-    private void changeRuler() {
-        Player ruler = findRuler();
-        ruler.setRuler(false);
-        Player nextRuler = findPlayerAfter(ruler);
-        nextRuler.setRuler(true);
     }
 
     private Player findPlayerAfter(Player player) {
@@ -208,7 +200,7 @@ public class Game {
         return players.get(indexOfPreviousPlayer);
     }
 
-    private boolean isWinnerTeamChange(Team winnerTeam) {
+    private boolean isWinnerTeamChanged(Team winnerTeam) {
         Player ruler = findRuler();
         Team rulerTeam = findTeamOfPlayer(ruler);
         return rulerTeam != winnerTeam;
@@ -355,7 +347,9 @@ public class Game {
 
     private boolean isPlayerTurn(Socket socket) {//todo clean it
         Player player = socketAndPlayer.get(socket);
-        if(currentRoundCards.isEmpty() && player.equals(findRuler())) {
+        if(currentRoundCards.isEmpty() && player.equals(findRuler()) && roundNumber == 1) {
+            return true;//todo fix this shit
+        } else if(currentRoundCards.isEmpty() && !playedRounds.isEmpty() && player.equals(playedRounds.peek().getWinner())) {
             return true;
         } else {
             Player previousPlayer = findPlayerBefore(player);
@@ -366,10 +360,6 @@ public class Game {
     private void clearScreen(Socket socket) {
         String message = "\n".repeat(10) + "=====================================================" + "\n";
         sendSignal(socket, message);
-    }
-
-    private void showRule(Socket socket) {
-        sendSignal(socket, "Rule: " + rule.getShape());
     }
 
     private String findNameOfPartner(Socket socket) {
@@ -388,10 +378,6 @@ public class Game {
     private String findNameOfPlayer(Socket socket) {
         Player player = socketAndPlayer.get(socket);
         return player.getName();
-    }
-
-    private void showCurrentRoundNumber(Socket socket) {
-        sendSignal(socket, "Round " + roundNumber);
     }
 
     private int findRoundsWon(Socket socket) {
@@ -427,8 +413,6 @@ public class Game {
 
     private boolean foundPlayingCardError(Socket socket, int cardIndex) {
         Player player = socketAndPlayer.get(socket);
-//        if(roundNumber == 1 && player.isRuler())//todo find usage
-//            return false;
         List<Card> cards = player.getHand().getCards();//todo clean it
         Card card = cards.get(cardIndex);
         try{
