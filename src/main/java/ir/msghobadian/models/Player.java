@@ -47,36 +47,17 @@ public class Player implements Serializable {
 
     private void receiveMessageFromGame() {
         while (true) {
-            handleCommand(receiveSignal(socket));
-            System.out.println();
+            String response = receiveSignal(socket);
+            System.out.print(response);
         }
     }
 
-    private void handleCommand(String input) {
-        System.out.print(input);
-    }
-
-    private void sendCommandToGame() {//todo update ruler after loss
+    private void sendCommandToGame() {
         Scanner scanner = new Scanner(System.in);
         while(true){
-            String cardIndex = scanner.nextLine();
-            if (!foundCardIndexRegexError(cardIndex)) playCard(cardIndex);
+            String command = scanner.nextLine();
+            sendSignal(socket, command);
         }
-    }
-
-    private boolean foundCardIndexRegexError(String cardIndex) {
-        try {
-            int card = Integer.parseInt(cardIndex);
-            if (card < 1 || 13 < card) throw new Exception();
-        } catch (Exception e){
-            System.err.println("Wrong number");
-            return true;
-        }
-        return false;
-    }
-
-    private void playCard(String cardNumber) {
-        sendSignal(socket, cardNumber);
     }
 
     public boolean hasCardOfType(Type type) {
